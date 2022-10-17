@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -17,16 +18,18 @@ import org.hibernate.annotations.DynamicUpdate;
 public class User {
     @Id
     @GeneratedValue(strategy = AUTO)
-    @Column(nullable = false, updatable = false)
+    @Column(updatable = false)
+    @NotNull
     private long uid;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
+    @NotNull
     private String username;
 
-    @Column(nullable = false)
+    @NotNull
     private String password;
 
-    @Column(nullable = false)
+    @NotNull
     private String role;
 
     @OneToMany(cascade = ALL, mappedBy = "requester")

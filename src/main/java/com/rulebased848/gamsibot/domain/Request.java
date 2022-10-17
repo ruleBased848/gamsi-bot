@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import static javax.persistence.GenerationType.AUTO;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -17,15 +18,19 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Request {
     @Id
     @GeneratedValue(strategy = AUTO)
+    @NotNull
     private long id;
 
+    @NotNull
     private String channelId;
 
+    @NotNull
     private long targetSubscriberCount;
 
+    @NotNull
     private String emailAddress;
 
-    @Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(columnDefinition = "DATETIME DEFAULT (UTC_TIMESTAMP)")
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = LAZY)
