@@ -8,13 +8,19 @@ import com.rulebased848.gamsibot.domain.UserRepository;
 import com.rulebased848.gamsibot.service.JwtService;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -82,5 +88,16 @@ public class RequestController {
         request.setRequester(user);
         bot.newRequest(request);
         return ResponseEntity.ok().build();
+    }
+
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String,String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        var errors = new HashMap<String,String>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            var fieldError = (FieldError)error;
+            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+        });
+        return errors;
     }
 }
