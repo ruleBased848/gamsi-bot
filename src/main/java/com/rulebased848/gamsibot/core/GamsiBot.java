@@ -1,5 +1,6 @@
 package com.rulebased848.gamsibot.core;
 
+import com.rulebased848.gamsibot.domain.ChannelIdAndTargetSubscriberCount;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestRepository;
 import com.rulebased848.gamsibot.web.YoutubeChannelInfoFetcher;
@@ -39,7 +40,7 @@ public class GamsiBot implements CommandLineRunner {
 
     @Override
     public synchronized void run(String... args) throws Exception {
-        for (var r : repository.findAllChannelIdWithMinimumTargetSubscriberCount()) {
+        for (ChannelIdAndTargetSubscriberCount r : repository.findAllChannelIdWithMinimumTargetSubscriberCount()) {
             updateThisWithNewRequest(r.getChannelId(), r.getTargetSubscriberCount());
         }
     }
@@ -50,7 +51,7 @@ public class GamsiBot implements CommandLineRunner {
     }
 
     private void updateThisWithNewRequest(String channelId, long targetSubscriberCount) {
-        var currentTarget = targets.get(channelId);
+        Long currentTarget = targets.get(channelId);
         if (currentTarget == null) {
             targets.put(channelId, targetSubscriberCount);
             var thread = new SubscriberCountThread(channelId);

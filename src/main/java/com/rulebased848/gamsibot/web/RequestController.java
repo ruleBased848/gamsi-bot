@@ -9,6 +9,7 @@ import com.rulebased848.gamsibot.service.JwtService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -51,8 +52,8 @@ public class RequestController {
         @RequestHeader(value = "JWT", defaultValue = "") String token,
         @RequestBody @Valid RequestPayload payload
     ) throws IOException {
-        var channelId = payload.getChannelId();
-        var info = fetcher.fetchChannelInfo(channelId);
+        String channelId = payload.getChannelId();
+        Map<String,Object> info = fetcher.fetchChannelInfo(channelId);
         if (!(boolean)info.get("isValid")) {
             var body = new HashMap<String,Object>(1);
             body.put("message", "The channel ID is not valid.");
@@ -60,7 +61,7 @@ public class RequestController {
                 .contentType(APPLICATION_JSON)
                 .body(body);
         }
-        var targetSubscriberCount = payload.getTargetSubscriberCount();
+        long targetSubscriberCount = payload.getTargetSubscriberCount();
         if (Long.compareUnsigned((long)info.get("subscriberCount"), targetSubscriberCount) >= 0) {
             var body = new HashMap<String,Object>(1);
             body.put("message", "The target subscriber count is already achieved.");
@@ -70,8 +71,8 @@ public class RequestController {
         }
         User user = null;
         if (!token.isEmpty()) {
-            var username = jwtService.getAuthUser(token.replaceFirst("Bearer ", ""));
-            var maybeUser = repository.findByUsername(username);
+            String username = jwtService.getAuthUser(token.replaceFirst("Bearer ", ""));
+            Optional<User> maybeUser = repository.findByUsername(username);
             if (maybeUser.isEmpty()) {
                 var body = new HashMap<String,Object>(1);
                 body.put("message", "The JWT is not valid.");
