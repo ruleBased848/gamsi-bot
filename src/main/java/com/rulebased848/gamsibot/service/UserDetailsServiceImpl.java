@@ -23,9 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> maybeUser = repository.findByUsername(username);
-        if (maybeUser.isEmpty()) {
-            throw new UsernameNotFoundException("User not found.");
-        }
+        if (maybeUser.isEmpty()) throw new UsernameNotFoundException("User not found.");
         var user = maybeUser.get();
         UserBuilder builder = withUsername(username);
         builder.password(user.getPassword());
