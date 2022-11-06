@@ -29,9 +29,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         HttpServletResponse response,
         FilterChain filterChain
     ) throws IOException, ServletException {
-        var value = request.getHeader(AUTHORIZATION);
+        String value = request.getHeader(AUTHORIZATION);
         if (value != null) {
-            var user = jwtService.getAuthUser(value.replaceFirst("Bearer ", ""));
+            String user = jwtService.getAuthUser(value.replaceFirst("Bearer ", ""));
             var authentication = new UsernamePasswordAuthenticationToken(user, null, emptyList());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

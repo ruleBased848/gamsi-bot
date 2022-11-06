@@ -4,9 +4,12 @@ import com.rulebased848.gamsibot.lang.LanguageService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.jsoup.HttpStatusException;
 import static org.jsoup.Jsoup.connect;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,15 +36,15 @@ public class YoutubeChannelInfoFetcher {
         } catch (HttpStatusException hse) {
             return info;
         }
-        var scripts = doc.select("script");
-        for (var script : scripts) {
+        Elements scripts = doc.select("script");
+        for (Element script : scripts) {
             if (script.html().contains("alerts")) {
                 return info;
             }
         }
         info.put("isValid", true);
-        for (var script : scripts) {
-            var count = languageService.findYoutubeSubscriberCount(script.html());
+        for (Element script : scripts) {
+            Optional<Long> count = languageService.findYoutubeSubscriberCount(script.html());
             if (count.isPresent()) {
                 info.put("subscriberCount", count.get());
                 return info;

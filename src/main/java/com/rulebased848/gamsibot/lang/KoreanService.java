@@ -14,7 +14,7 @@ public class KoreanService implements LanguageService {
         if (!matcher.find()) {
             return Optional.empty();
         }
-        var found = matcher.group(1);
+        String found = matcher.group(1);
         while (matcher.find()) {
             found = matcher.group(1);
         }

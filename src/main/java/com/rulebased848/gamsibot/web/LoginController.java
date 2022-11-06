@@ -32,7 +32,7 @@ public class LoginController {
             credentials.getUsername(),
             credentials.getPassword()
         );
-        var username = authenticationManager.authenticate(token).getName();
+        String username = authenticationManager.authenticate(token).getName();
         return ResponseEntity.ok()
             .header(AUTHORIZATION, "Bearer " + jwtService.getToken(username))
             .build();
