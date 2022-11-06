@@ -82,9 +82,7 @@ public class GamsiBot implements CommandLineRunner {
                     break;
                 }
                 var timeStamp = Instant.now();
-                if (!(boolean)info.get("isValid")) {
-                    break;
-                }
+                if (!(boolean)info.get("isValid")) break;
                 var subscriberCount = (long)info.get("subscriberCount");
                 List<Request> requests = null;
                 Long target;
@@ -109,9 +107,7 @@ public class GamsiBot implements CommandLineRunner {
                         }
                     }
                 }
-                if (target == null) {
-                    return;
-                }
+                if (target == null) return;
                 long sleepTimeMillis = (target - subscriberCount) * factor;
                 try {
                     sleep(sleepTimeMillis < 0 ? Long.MAX_VALUE : sleepTimeMillis);
