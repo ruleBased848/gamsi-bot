@@ -87,8 +87,9 @@ public class RequestController {
         request.setTargetSubscriberCount(targetSubscriberCount);
         request.setEmailAddress(payload.getEmailAddress());
         request.setRequester(user);
-        bot.newRequest(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok()
+            .contentType(APPLICATION_JSON)
+            .body(bot.newRequest(request));
     }
 
     @ResponseStatus(BAD_REQUEST)
