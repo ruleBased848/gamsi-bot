@@ -45,9 +45,9 @@ public class GamsiBot implements CommandLineRunner {
         }
     }
 
-    public synchronized void newRequest(Request request) {
-        repository.save(request);
+    public synchronized Request newRequest(Request request) {
         updateThisWithNewRequest(request.getChannelId(), request.getTargetSubscriberCount());
+        return repository.save(request);
     }
 
     private void updateThisWithNewRequest(String channelId, long targetSubscriberCount) {
