@@ -87,6 +87,7 @@ public class GamsiBot implements CommandLineRunner {
                 List<Request> requests = null;
                 Long target;
                 synchronized (GamsiBot.this) {
+                    if (targets.get(channelId) == null) return;
                     if (Long.compareUnsigned(subscriberCount, target = targets.get(channelId)) >= 0) {
                         requests = repository.findByChannelIdAndTargetSubscriberCountLessThanEqual(channelId, subscriberCount);
                         repository.deleteAll(requests);
@@ -114,6 +115,7 @@ public class GamsiBot implements CommandLineRunner {
                 } catch (InterruptedException ie) {}
             }
             synchronized (GamsiBot.this) {
+                if (targets.get(channelId) == null) return;
                 repository.deleteByChannelId(channelId);
                 targets.remove(channelId);
                 threads.remove(channelId);
