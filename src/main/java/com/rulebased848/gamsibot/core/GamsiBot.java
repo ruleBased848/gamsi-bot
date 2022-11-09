@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -61,6 +62,36 @@ public class GamsiBot implements CommandLineRunner {
             targets.put(channelId, targetSubscriberCount);
             threads.get(channelId).interrupt();
         }
+    }
+
+    public synchronized Map<String,Object> deleteRequest(long id, String username) {
+        Map<String,Object> result = new HashMap<>();
+        result.put("success", false);
+        Optional<Request> maybeRequest = repository.findById(id);
+        if (maybeRequest.isEmpty()) {
+            result.put("reason", "The request ID is not valid.");
+            return result;
+        }
+        var request = maybeRequest.get();
+        var user = request.getRequester();
+        if (user != null && user.getUsername() != username) {
+            result.put("reason", "You do not have permission.");
+            return result;
+        }
+        repository.delete(request);
+        String channelId = request.getChannelId();
+        if (Long.compareUnsigned(request.getTargetSubscriberCount(), targets.get(channelId)) == 0) {
+            Long target = repository.findMinimumTargetSubscriberCountByChannelId(channelId);
+            if (target != null) {
+                targets.put(channelId, target);
+            } else {
+                targets.remove(channelId);
+                threads.get(channelId).interrupt();
+                threads.remove(channelId);
+            }
+        }
+        result.put("success", true);
+        return result;
     }
 
     private class SubscriberCountThread extends Thread {
