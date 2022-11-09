@@ -17,7 +17,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -90,6 +92,17 @@ public class RequestController {
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
             .body(bot.newRequest(request));
+    }
+
+    @DeleteMapping("/requests/{id}")
+    public ResponseEntity<?> deleteRequest(
+        @RequestHeader(value = "JWT", defaultValue = "") String token,
+        @PathVariable long id
+    ) {
+        String username = token.isEmpty() ? null : jwtService.getAuthUser(token.replaceFirst("Bearer ", ""));
+        return ResponseEntity.ok()
+            .contentType(APPLICATION_JSON)
+            .body(bot.deleteRequest(id, username));
     }
 
     @ResponseStatus(BAD_REQUEST)
