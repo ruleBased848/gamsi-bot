@@ -15,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +49,23 @@ public class RequestController {
         this.jwtService = jwtService;
         this.repository = repository;
         this.bot = bot;
+    }
+
+    @GetMapping("/requests")
+    public ResponseEntity<?> getPersonalRequests() {
+        var username = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> maybeUser = repository.findByUsername(username);
+        if (maybeUser.isEmpty()) {
+            var body = new HashMap<String,Object>(1);
+            body.put("message", "The user does not exist.");
+            return ResponseEntity.badRequest()
+                .contentType(APPLICATION_JSON)
+                .body(body);
+        }
+        var user = maybeUser.get();
+        return ResponseEntity.ok()
+            .contentType(APPLICATION_JSON)
+            .body(user.getRequests());
     }
 
     @PostMapping("/requests")
