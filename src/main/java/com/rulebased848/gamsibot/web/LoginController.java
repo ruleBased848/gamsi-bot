@@ -3,6 +3,7 @@ package com.rulebased848.gamsibot.web;
 import com.rulebased848.gamsibot.domain.AccountCredentials;
 import com.rulebased848.gamsibot.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +36,7 @@ public class LoginController {
         String username = authenticationManager.authenticate(token).getName();
         return ResponseEntity.ok()
             .header(AUTHORIZATION, "Bearer " + jwtService.getToken(username))
+            .header(ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
             .build();
     }
 }
