@@ -74,7 +74,7 @@ public class GamsiBot implements CommandLineRunner {
         }
         var request = maybeRequest.get();
         var user = request.getRequester();
-        if (user != null && user.getUsername() != username) {
+        if (user != null && !user.getUsername().equals(username)) {
             result.put("reason", "You do not have permission.");
             return result;
         }
