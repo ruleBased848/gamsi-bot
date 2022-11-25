@@ -11,7 +11,6 @@ import static org.springframework.http.HttpMethod.GET;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import static org.springframework.security.core.userdetails.User.withUsername;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,7 +24,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
     private final AuthenticationFilter authenticationFilter;
 
