@@ -1,18 +1,23 @@
 package com.rulebased848.gamsibot;
 
-import com.rulebased848.gamsibot.service.UserDetailsServiceImpl;
+import com.rulebased848.gamsibot.domain.User;
+import com.rulebased848.gamsibot.domain.UserRepository;
 import static java.util.Arrays.asList;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import static org.springframework.http.HttpMethod.GET;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+import static org.springframework.security.core.userdetails.User.withUsername;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -24,15 +29,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final AuthenticationFilter authenticationFilter;
 
-    private final UserDetailsServiceImpl userDetailsService;
-
     @Autowired
-    public SecurityConfig(
-        final AuthenticationFilter authenticationFilter,
-        final UserDetailsServiceImpl userDetailsService
-    ) {
+    public SecurityConfig(final AuthenticationFilter authenticationFilter) {
         this.authenticationFilter = authenticationFilter;
-        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -58,11 +57,22 @@ public class SecurityConfig {
         return source;
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-            .passwordEncoder(new BCryptPasswordEncoder());
+    @Bean
+    public UserDetailsService userDetailsService(UserRepository repository) {
+        return username -> {
+            Optional<User> maybeUser = repository.findByUsername(username);
+            if (maybeUser.isEmpty()) throw new UsernameNotFoundException("User not found.");
+            User user = maybeUser.get();
+            return withUsername(username)
+                .password(user.getPassword())
+                .roles(user.getRole())
+                .build();
+        };
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
