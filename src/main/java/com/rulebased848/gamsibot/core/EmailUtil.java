@@ -2,11 +2,8 @@ package com.rulebased848.gamsibot.core;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
-import java.util.Properties;
-import javax.mail.Authenticator;
 import static javax.mail.Message.RecipientType.TO;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import static javax.mail.Transport.send;
 import javax.mail.internet.InternetAddress;
@@ -23,21 +20,8 @@ public class EmailUtil {
     private final String mailAddress;
 
     @Autowired
-    public EmailUtil(MailProps mailProps) {
-        var props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", mailProps.getHost());
-        props.put("mail.smtp.port", mailProps.getPort());
-        props.put("mail.smtp.ssl.trust", mailProps.getSslTrust());
-        props.put("mail.smtp.ssl.protocols", mailProps.getSslProtocols());
-        var auth = new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailProps.getUsername(), mailProps.getPassword());
-            }
-        };
-        session = Session.getInstance(props, auth);
+    public EmailUtil(Session session, MailProps mailProps) {
+        this.session = session;
         mailAddress = mailProps.getAddress();
     }
 
