@@ -14,7 +14,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,30 +23,22 @@ public class EmailUtil {
     private final String mailAddress;
 
     @Autowired
-    public EmailUtil(
-        @Value("${mail.smtp.host}") String mailHost,
-        @Value("${mail.smtp.port}") String mailPort,
-        @Value("${mail.smtp.ssl.trust}") String mailSslTrust,
-        @Value("${mail.smtp.ssl.protocols}") String mailSslProtocols,
-        @Value("${mail.username}") String mailUsername,
-        @Value("${mail.password}") String mailPassword,
-        @Value("${mail.address}") String mailAddress
-    ) {
+    public EmailUtil(MailProps mailProps) {
         var props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", mailHost);
-        props.put("mail.smtp.port", mailPort);
-        props.put("mail.smtp.ssl.trust", mailSslTrust);
-        props.put("mail.smtp.ssl.protocols", mailSslProtocols);
+        props.put("mail.smtp.host", mailProps.getHost());
+        props.put("mail.smtp.port", mailProps.getPort());
+        props.put("mail.smtp.ssl.trust", mailProps.getSslTrust());
+        props.put("mail.smtp.ssl.protocols", mailProps.getSslProtocols());
         var auth = new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailUsername, mailPassword);
+                return new PasswordAuthentication(mailProps.getUsername(), mailProps.getPassword());
             }
         };
         session = Session.getInstance(props, auth);
-        this.mailAddress = mailAddress;
+        mailAddress = mailProps.getAddress();
     }
 
     public void sendEmail(
