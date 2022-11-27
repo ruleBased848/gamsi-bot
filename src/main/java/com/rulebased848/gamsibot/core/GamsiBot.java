@@ -1,6 +1,6 @@
 package com.rulebased848.gamsibot.core;
 
-import com.rulebased848.gamsibot.domain.ChannelIdAndTargetSubscriberCount;
+import com.rulebased848.gamsibot.domain.HandleAndTargetSubscriberCount;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestRepository;
 import com.rulebased848.gamsibot.web.YoutubeChannelInfoFetcher;
@@ -41,26 +41,26 @@ public class GamsiBot implements CommandLineRunner {
 
     @Override
     public synchronized void run(String... args) throws Exception {
-        for (ChannelIdAndTargetSubscriberCount r : repository.findAllChannelIdWithMinimumTargetSubscriberCount()) {
-            updateThisWithNewRequest(r.getChannelId(), r.getTargetSubscriberCount());
+        for (HandleAndTargetSubscriberCount r : repository.findAllHandleWithMinimumTargetSubscriberCount()) {
+            updateThisWithNewRequest(r.getHandle(), r.getTargetSubscriberCount());
         }
     }
 
     public synchronized Request newRequest(Request request) {
-        updateThisWithNewRequest(request.getChannelId(), request.getTargetSubscriberCount());
+        updateThisWithNewRequest(request.getHandle(), request.getTargetSubscriberCount());
         return repository.save(request);
     }
 
-    private void updateThisWithNewRequest(String channelId, long targetSubscriberCount) {
-        Long currentTarget = targets.get(channelId);
+    private void updateThisWithNewRequest(String handle, long targetSubscriberCount) {
+        Long currentTarget = targets.get(handle);
         if (currentTarget == null) {
-            targets.put(channelId, targetSubscriberCount);
-            var thread = new SubscriberCountThread(channelId);
+            targets.put(handle, targetSubscriberCount);
+            var thread = new SubscriberCountThread(handle);
             thread.start();
-            threads.put(channelId, thread);
+            threads.put(handle, thread);
         } else if (Long.compareUnsigned(targetSubscriberCount, currentTarget) < 0) {
-            targets.put(channelId, targetSubscriberCount);
-            threads.get(channelId).interrupt();
+            targets.put(handle, targetSubscriberCount);
+            threads.get(handle).interrupt();
         }
     }
 
@@ -79,15 +79,15 @@ public class GamsiBot implements CommandLineRunner {
             return result;
         }
         repository.delete(request);
-        String channelId = request.getChannelId();
-        if (Long.compareUnsigned(request.getTargetSubscriberCount(), targets.get(channelId)) == 0) {
-            Long target = repository.findMinimumTargetSubscriberCountByChannelId(channelId);
+        String handle = request.getHandle();
+        if (Long.compareUnsigned(request.getTargetSubscriberCount(), targets.get(handle)) == 0) {
+            Long target = repository.findMinimumTargetSubscriberCountByHandle(handle);
             if (target != null) {
-                targets.put(channelId, target);
+                targets.put(handle, target);
             } else {
-                targets.remove(channelId);
-                threads.get(channelId).interrupt();
-                threads.remove(channelId);
+                targets.remove(handle);
+                threads.get(handle).interrupt();
+                threads.remove(handle);
             }
         }
         result.put("success", true);
@@ -97,10 +97,10 @@ public class GamsiBot implements CommandLineRunner {
     private class SubscriberCountThread extends Thread {
         private static final int factor = 60000;
 
-        private final String channelId;
+        private final String handle;
 
-        public SubscriberCountThread(String channelId) {
-            this.channelId = channelId;
+        public SubscriberCountThread(String handle) {
+            this.handle = handle;
         }
 
         @Override
@@ -108,7 +108,7 @@ public class GamsiBot implements CommandLineRunner {
             while (true) {
                 Map<String,Object> info = null;
                 try {
-                    info = fetcher.fetchChannelInfo(channelId);
+                    info = fetcher.fetchChannelInfo(handle);
                 } catch (IOException ioe) {
                     break;
                 }
@@ -118,22 +118,22 @@ public class GamsiBot implements CommandLineRunner {
                 List<Request> requests = null;
                 Long target;
                 synchronized (GamsiBot.this) {
-                    if (targets.get(channelId) == null) return;
-                    if (Long.compareUnsigned(subscriberCount, target = targets.get(channelId)) >= 0) {
-                        requests = repository.findByChannelIdAndTargetSubscriberCountLessThanEqual(channelId, subscriberCount);
+                    if (targets.get(handle) == null) return;
+                    if (Long.compareUnsigned(subscriberCount, target = targets.get(handle)) >= 0) {
+                        requests = repository.findByHandleAndTargetSubscriberCountLessThanEqual(handle, subscriberCount);
                         repository.deleteAll(requests);
-                        if ((target = repository.findMinimumTargetSubscriberCountByChannelId(channelId)) != null) {
-                            targets.put(channelId, target);
+                        if ((target = repository.findMinimumTargetSubscriberCountByHandle(handle)) != null) {
+                            targets.put(handle, target);
                         } else {
-                            targets.remove(channelId);
-                            threads.remove(channelId);
+                            targets.remove(handle);
+                            threads.remove(handle);
                         }
                     }
                 }
                 if (requests != null) {
                     for (var request : requests) {
                         try {
-                            emailUtil.sendEmail(request.getEmailAddress(), channelId, subscriberCount, timeStamp);
+                            emailUtil.sendEmail(request.getEmailAddress(), handle, subscriberCount, timeStamp);
                         } catch (UnsupportedEncodingException uee) {
                         } catch (MessagingException me) {
                         }
@@ -146,10 +146,10 @@ public class GamsiBot implements CommandLineRunner {
                 } catch (InterruptedException ie) {}
             }
             synchronized (GamsiBot.this) {
-                if (targets.get(channelId) == null) return;
-                repository.deleteByChannelId(channelId);
-                targets.remove(channelId);
-                threads.remove(channelId);
+                if (targets.get(handle) == null) return;
+                repository.deleteByHandle(handle);
+                targets.remove(handle);
+                threads.remove(handle);
             }
         }
     }

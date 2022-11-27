@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class YoutubeChannelInfoFetcher {
-    private static final String youtubeChannelUrl = "https://www.youtube.com/channel/";
+    private static final String youtubeChannelUrl = "https://www.youtube.com/@";
 
     private final LanguageService languageService;
 
@@ -24,13 +24,13 @@ public class YoutubeChannelInfoFetcher {
         this.languageService = languageService;
     }
 
-    public Map<String,Object> fetchChannelInfo(String channelId) throws IOException {
+    public Map<String,Object> fetchChannelInfo(String handle) throws IOException {
         var info = new HashMap<String,Object>();
         info.put("isValid", false);
-        if (channelId == null || channelId.length() == 0) return info;
+        if (handle == null || handle.length() == 0) return info;
         Document doc = null;
         try {
-            doc = connect(youtubeChannelUrl + channelId).get();
+            doc = connect(youtubeChannelUrl + handle).get();
         } catch (HttpStatusException hse) {
             return info;
         }

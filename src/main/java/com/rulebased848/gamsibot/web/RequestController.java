@@ -73,11 +73,11 @@ public class RequestController {
         @RequestHeader(value = "JWT", defaultValue = "") String token,
         @RequestBody @Valid RequestPayload payload
     ) throws IOException {
-        String channelId = payload.getChannelId();
-        Map<String,Object> info = fetcher.fetchChannelInfo(channelId);
+        String handle = payload.getHandle();
+        Map<String,Object> info = fetcher.fetchChannelInfo(handle);
         if (!(boolean)info.get("isValid")) {
             var body = new HashMap<String,Object>(1);
-            body.put("message", "The channel ID is not valid.");
+            body.put("message", "The handle is not valid.");
             return ResponseEntity.badRequest()
                 .contentType(APPLICATION_JSON)
                 .body(body);
@@ -104,7 +104,7 @@ public class RequestController {
             user = maybeUser.get();
         }
         var request = new Request();
-        request.setChannelId(channelId);
+        request.setHandle(handle);
         request.setTargetSubscriberCount(targetSubscriberCount);
         request.setEmailAddress(payload.getEmailAddress());
         request.setRequester(user);
