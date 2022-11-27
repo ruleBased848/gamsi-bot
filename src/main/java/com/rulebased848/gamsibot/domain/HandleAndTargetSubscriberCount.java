@@ -1,21 +1,21 @@
 package com.rulebased848.gamsibot.domain;
 
-public class ChannelIdAndTargetSubscriberCount {
-    private String channelId;
+public class HandleAndTargetSubscriberCount {
+    private String handle;
 
     private long targetSubscriberCount;
 
-    public ChannelIdAndTargetSubscriberCount(String channelId, long targetSubscriberCount) {
-        this.channelId = channelId;
+    public HandleAndTargetSubscriberCount(String handle, long targetSubscriberCount) {
+        this.handle = handle;
         this.targetSubscriberCount = targetSubscriberCount;
     }
 
-    public String getChannelId() {
-        return channelId;
+    public String getHandle() {
+        return handle;
     }
 
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public long getTargetSubscriberCount() {

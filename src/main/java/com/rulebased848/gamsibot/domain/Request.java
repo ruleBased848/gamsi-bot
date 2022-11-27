@@ -22,7 +22,7 @@ public class Request {
     private long id;
 
     @NotNull
-    private String channelId;
+    private String handle;
 
     @NotNull
     private long targetSubscriberCount;
@@ -44,12 +44,12 @@ public class Request {
         this.id = id;
     }
 
-    public String getChannelId() {
-        return channelId;
+    public String getHandle() {
+        return handle;
     }
 
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public long getTargetSubscriberCount() {

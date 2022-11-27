@@ -27,7 +27,7 @@ public class EmailUtil {
 
     public void sendEmail(
         String emailAddress,
-        String channelId,
+        String handle,
         long subscriberCount,
         Instant timestamp
     ) throws UnsupportedEncodingException, MessagingException {
@@ -36,7 +36,7 @@ public class EmailUtil {
         message.setRecipients(TO, InternetAddress.parse(emailAddress));
         message.setSubject("Gamsi Bot Notification");
         var bodyPart = new MimeBodyPart();
-        var content = "Channel ID: <a href=\"https://www.youtube.com/channel/" + channelId + "\">" + channelId + "</a><br>" +
+        var content = "Handle: <a href=\"https://www.youtube.com/@" + handle + "\">@" + handle + "</a><br>" +
             "Subscribers: " + subscriberCount + "<br>" +
             "UTC Timestamp: " + timestamp;
         bodyPart.setContent(content, "text/html; charset=utf-8");

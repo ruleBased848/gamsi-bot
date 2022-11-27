@@ -6,7 +6,7 @@ import javax.validation.constraints.NotEmpty;
 
 public class RequestPayload {
     @NotBlank
-    private String channelId;
+    private String handle;
 
     private long targetSubscriberCount;
 
@@ -14,12 +14,12 @@ public class RequestPayload {
     @NotEmpty
     private String emailAddress;
 
-    public String getChannelId() {
-        return channelId;
+    public String getHandle() {
+        return handle;
     }
 
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public long getTargetSubscriberCount() {

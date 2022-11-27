@@ -5,13 +5,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 public interface RequestRepository extends CrudRepository<Request,Long> {
-    void deleteByChannelId(String channelId);
+    void deleteByHandle(String handle);
 
-    List<Request> findByChannelIdAndTargetSubscriberCountLessThanEqual(String channelId, long targetSubscriberCount);
+    List<Request> findByHandleAndTargetSubscriberCountLessThanEqual(String handle, long targetSubscriberCount);
 
-    @Query("SELECT MIN(r.targetSubscriberCount) FROM Request r WHERE r.channelId = ?1")
-    Long findMinimumTargetSubscriberCountByChannelId(String channelId);
+    @Query("SELECT MIN(r.targetSubscriberCount) FROM Request r WHERE r.handle = ?1")
+    Long findMinimumTargetSubscriberCountByHandle(String handle);
 
-    @Query("SELECT new com.rulebased848.gamsibot.domain.ChannelIdAndTargetSubscriberCount(r.channelId, MIN(r.targetSubscriberCount)) FROM Request r GROUP BY r.channelId")
-    List<ChannelIdAndTargetSubscriberCount> findAllChannelIdWithMinimumTargetSubscriberCount();
+    @Query("SELECT new com.rulebased848.gamsibot.domain.HandleAndTargetSubscriberCount(r.handle, MIN(r.targetSubscriberCount)) FROM Request r GROUP BY r.handle")
+    List<HandleAndTargetSubscriberCount> findAllHandleWithMinimumTargetSubscriberCount();
 }
