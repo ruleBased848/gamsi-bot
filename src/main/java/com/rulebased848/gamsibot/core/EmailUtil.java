@@ -17,11 +17,14 @@ import org.springframework.stereotype.Component;
 public class EmailUtil {
     private final Session session;
 
+    private final EmailView view;
+
     private final String mailAddress;
 
     @Autowired
-    public EmailUtil(Session session, MailProps mailProps) {
+    public EmailUtil(Session session, EmailView view, MailProps mailProps) {
         this.session = session;
+        this.view = view;
         mailAddress = mailProps.getAddress();
     }
 
@@ -32,13 +35,11 @@ public class EmailUtil {
         Instant timestamp
     ) throws UnsupportedEncodingException, MessagingException {
         var message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mailAddress, "Gamsi Bot"));
+        message.setFrom(new InternetAddress(mailAddress, view.getPersonalName()));
         message.setRecipients(TO, InternetAddress.parse(emailAddress));
-        message.setSubject("Gamsi Bot Notification");
+        message.setSubject(view.getSubject());
         var bodyPart = new MimeBodyPart();
-        var content = "Handle: <a href=\"https://www.youtube.com/@" + handle + "\">@" + handle + "</a><br>" +
-            "Subscribers: " + subscriberCount + "<br>" +
-            "UTC Timestamp: " + timestamp;
+        var content = view.getContent(handle, subscriberCount, timestamp);
         bodyPart.setContent(content, "text/html; charset=utf-8");
         var multiPart = new MimeMultipart();
         multiPart.addBodyPart(bodyPart);
