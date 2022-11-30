@@ -1,6 +1,6 @@
 package com.rulebased848.gamsibot.web;
 
-import com.rulebased848.gamsibot.core.GamsiBot;
+import com.rulebased848.gamsibot.core.RequestManager;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestPayload;
 import com.rulebased848.gamsibot.domain.User;
@@ -36,19 +36,19 @@ public class RequestController {
 
     private final UserRepository repository;
 
-    private final GamsiBot bot;
+    private final RequestManager requestManager;
 
     @Autowired
     public RequestController(
         final YoutubeChannelInfoFetcher fetcher,
         final JwtService jwtService,
         final UserRepository repository,
-        final GamsiBot bot
+        final RequestManager requestManager
     ) {
         this.fetcher = fetcher;
         this.jwtService = jwtService;
         this.repository = repository;
-        this.bot = bot;
+        this.requestManager = requestManager;
     }
 
     @GetMapping("/requests")
@@ -110,7 +110,7 @@ public class RequestController {
         request.setRequester(user);
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
-            .body(bot.newRequest(request));
+            .body(requestManager.createRequest(request));
     }
 
     @DeleteMapping("/requests/{id}")
@@ -121,7 +121,7 @@ public class RequestController {
         String username = token.isEmpty() ? null : jwtService.getAuthUser(token.replaceFirst("Bearer ", ""));
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
-            .body(bot.deleteRequest(id, username));
+            .body(requestManager.deleteRequest(id, username));
     }
 
     @ResponseStatus(BAD_REQUEST)
