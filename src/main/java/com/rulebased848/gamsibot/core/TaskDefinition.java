@@ -3,7 +3,6 @@ package com.rulebased848.gamsibot.core;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestRepository;
 import com.rulebased848.gamsibot.web.YoutubeChannelInfoFetcher;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.util.List;
@@ -29,13 +28,7 @@ public class TaskDefinition {
 
     public Runnable getTask(String handle) {
         return () -> {
-            Map<String,Object> info;
-            try {
-                info = fetcher.fetchChannelInfo(handle);
-            } catch (IOException ioe) {
-                repository.deleteByHandle(handle);
-                return;
-            }
+            Map<String,Object> info = fetcher.fetchChannelInfo(handle);
             Instant timeStamp = Instant.now();
             if (!(boolean)info.get("isValid")) {
                 repository.deleteByHandle(handle);
