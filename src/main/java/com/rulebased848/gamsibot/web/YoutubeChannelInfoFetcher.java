@@ -25,7 +25,7 @@ public class YoutubeChannelInfoFetcher {
     }
 
     public Map<String,Object> fetchChannelInfo(String handle) throws IOException {
-        var info = new HashMap<String,Object>();
+        Map<String,Object> info = new HashMap<>();
         info.put("isValid", false);
         if (handle == null || handle.length() == 0) return info;
         Document doc = null;
