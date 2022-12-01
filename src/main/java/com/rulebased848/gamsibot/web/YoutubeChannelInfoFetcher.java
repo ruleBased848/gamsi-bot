@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import static org.jsoup.Jsoup.connect;
 import org.jsoup.nodes.Document;
@@ -28,9 +29,10 @@ public class YoutubeChannelInfoFetcher {
         Map<String,Object> info = new HashMap<>();
         info.put("isValid", false);
         if (handle == null || handle.length() == 0) return info;
-        Document doc = null;
+        Connection connection = connect(youtubeChannelUrl + handle);
+        Document doc;
         try {
-            doc = connect(youtubeChannelUrl + handle).get();
+            doc = connection.get();
         } catch (HttpStatusException hse) {
             return info;
         }
