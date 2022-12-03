@@ -1,7 +1,6 @@
 package com.rulebased848.gamsibot.domain;
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
+import java.time.Instant;
 import javax.persistence.Entity;
 import static javax.persistence.FetchType.LAZY;
 import javax.persistence.GeneratedValue;
@@ -30,8 +29,8 @@ public class Request {
     @NotNull
     private String emailAddress;
 
-    @Column(columnDefinition = "DATETIME DEFAULT (UTC_TIMESTAMP)")
-    private LocalDateTime createdAt;
+    @NotNull
+    private Instant createdAt;
 
     @ManyToOne(fetch = LAZY)
     private User requester;
@@ -68,11 +67,11 @@ public class Request {
         this.emailAddress = emailAddress;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
