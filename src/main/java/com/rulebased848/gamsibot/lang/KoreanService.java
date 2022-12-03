@@ -12,12 +12,11 @@ public class KoreanService implements LanguageService {
     @Override
     public Optional<Long> findYoutubeSubscriberCount(String text) {
         Matcher matcher = pattern.matcher(text);
-        if (!matcher.find()) return Optional.empty();
-        String found = matcher.group(1);
+        String found = null;
         while (matcher.find()) {
             found = matcher.group(1);
         }
-        return Optional.of(parseLong(found));
+        return found == null ? Optional.empty() : Optional.of(parseLong(found));
     }
 
     @Override
