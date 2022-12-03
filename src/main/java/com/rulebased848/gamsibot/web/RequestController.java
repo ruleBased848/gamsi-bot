@@ -7,6 +7,7 @@ import com.rulebased848.gamsibot.domain.User;
 import com.rulebased848.gamsibot.domain.UserRepository;
 import com.rulebased848.gamsibot.service.JwtService;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -107,6 +108,7 @@ public class RequestController {
         request.setHandle(handle);
         request.setTargetSubscriberCount(targetSubscriberCount);
         request.setEmailAddress(payload.getEmailAddress());
+        request.setCreatedAt(Instant.now());
         request.setRequester(user);
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
