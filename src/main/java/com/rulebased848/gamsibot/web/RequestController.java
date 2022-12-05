@@ -9,6 +9,7 @@ import com.rulebased848.gamsibot.service.JwtService;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -46,13 +47,13 @@ public class RequestController {
         var username = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Optional<User> maybeUser = repository.findByUsername(username);
         if (maybeUser.isEmpty()) {
-            var body = new HashMap<String,Object>(1);
+            Map<String,Object> body = new HashMap<>(1);
             body.put("message", "The user does not exist.");
             return ResponseEntity.badRequest()
                 .contentType(APPLICATION_JSON)
                 .body(body);
         }
-        var user = maybeUser.get();
+        User user = maybeUser.get();
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
             .body(user.getRequests());
