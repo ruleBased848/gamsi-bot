@@ -1,5 +1,6 @@
 package com.rulebased848.gamsibot.web;
 
+import com.rulebased848.gamsibot.web.interceptor.RequesterValidationInterceptor;
 import com.rulebased848.gamsibot.web.interceptor.RequestTargetValidationInterceptor;
 import com.rulebased848.gamsibot.web.interceptor.SimpleRequestValidationInterceptor;
 import com.rulebased848.gamsibot.web.interceptor.YoutubeChannelValidationInterceptor;
@@ -16,15 +17,19 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final RequestTargetValidationInterceptor requestTargetValidationInterceptor;
 
+    private final RequesterValidationInterceptor requesterValidationInterceptor;
+
     @Autowired
     public WebConfig(
         SimpleRequestValidationInterceptor simpleRequestValidationInterceptor,
         YoutubeChannelValidationInterceptor youtubeChannelValidationInterceptor,
-        RequestTargetValidationInterceptor requestTargetValidationInterceptor
+        RequestTargetValidationInterceptor requestTargetValidationInterceptor,
+        RequesterValidationInterceptor requesterValidationInterceptor
     ) {
         this.simpleRequestValidationInterceptor = simpleRequestValidationInterceptor;
         this.youtubeChannelValidationInterceptor = youtubeChannelValidationInterceptor;
         this.requestTargetValidationInterceptor = requestTargetValidationInterceptor;
+        this.requesterValidationInterceptor = requesterValidationInterceptor;
     }
 
     @Override
@@ -37,6 +42,9 @@ public class WebConfig implements WebMvcConfigurer {
             .addPathPatterns("/requests");
         registry
             .addInterceptor(requestTargetValidationInterceptor)
+            .addPathPatterns("/requests");
+        registry
+            .addInterceptor(requesterValidationInterceptor)
             .addPathPatterns("/requests");
     }
 }

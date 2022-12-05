@@ -60,28 +60,17 @@ public class RequestController {
 
     @PostMapping("/requests")
     public ResponseEntity<?> acceptRequest(
-        @RequestHeader(value = "JWT", defaultValue = "") String token,
+        @RequestAttribute(name = "user", required = false) Optional<User> maybeUser,
         @RequestAttribute("payload") RequestPayload payload
     ) throws IOException {
-        User user = null;
-        if (!token.isEmpty()) {
-            String username = jwtService.getAuthUser(token.replaceFirst("Bearer ", ""));
-            Optional<User> maybeUser = repository.findByUsername(username);
-            if (maybeUser.isEmpty()) {
-                var body = new HashMap<String,Object>(1);
-                body.put("message", "The JWT is not valid.");
-                return ResponseEntity.badRequest()
-                    .contentType(APPLICATION_JSON)
-                    .body(body);
-            }
-            user = maybeUser.get();
-        }
         var request = new Request();
         request.setHandle(payload.getHandle());
         request.setTargetSubscriberCount(payload.getTargetSubscriberCount());
         request.setEmailAddress(payload.getEmailAddress());
         request.setCreatedAt(Instant.now());
-        request.setRequester(user);
+        if (maybeUser.isPresent()) {
+            request.setRequester(maybeUser.get());
+        }
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
             .body(requestManager.createRequest(request));
