@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RequestController {
-    private final YoutubeChannelInfoFetcher fetcher;
-
     private final JwtService jwtService;
 
     private final UserRepository repository;
@@ -35,12 +33,10 @@ public class RequestController {
 
     @Autowired
     public RequestController(
-        final YoutubeChannelInfoFetcher fetcher,
         final JwtService jwtService,
         final UserRepository repository,
         final RequestManager requestManager
     ) {
-        this.fetcher = fetcher;
         this.jwtService = jwtService;
         this.repository = repository;
         this.requestManager = requestManager;
@@ -66,17 +62,9 @@ public class RequestController {
     @PostMapping("/requests")
     public ResponseEntity<?> acceptRequest(
         @RequestHeader(value = "JWT", defaultValue = "") String token,
-        @RequestAttribute("payload") RequestPayload payload
+        @RequestAttribute("payload") RequestPayload payload,
+        @RequestAttribute("channel.info") Map<String,Object> info
     ) throws IOException {
-        String handle = payload.getHandle();
-        Map<String,Object> info = fetcher.fetchChannelInfo(handle);
-        if (!(boolean)info.get("isValid")) {
-            var body = new HashMap<String,Object>(1);
-            body.put("message", "The handle is not valid.");
-            return ResponseEntity.badRequest()
-                .contentType(APPLICATION_JSON)
-                .body(body);
-        }
         long targetSubscriberCount = payload.getTargetSubscriberCount();
         if (Long.compareUnsigned((long)info.get("subscriberCount"), targetSubscriberCount) >= 0) {
             var body = new HashMap<String,Object>(1);
@@ -99,7 +87,7 @@ public class RequestController {
             user = maybeUser.get();
         }
         var request = new Request();
-        request.setHandle(handle);
+        request.setHandle(payload.getHandle());
         request.setTargetSubscriberCount(targetSubscriberCount);
         request.setEmailAddress(payload.getEmailAddress());
         request.setCreatedAt(Instant.now());
