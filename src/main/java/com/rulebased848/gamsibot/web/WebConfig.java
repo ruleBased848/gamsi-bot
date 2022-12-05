@@ -1,5 +1,6 @@
 package com.rulebased848.gamsibot.web;
 
+import com.rulebased848.gamsibot.web.interceptor.RequestTargetValidationInterceptor;
 import com.rulebased848.gamsibot.web.interceptor.SimpleRequestValidationInterceptor;
 import com.rulebased848.gamsibot.web.interceptor.YoutubeChannelValidationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,17 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final YoutubeChannelValidationInterceptor youtubeChannelValidationInterceptor;
 
+    private final RequestTargetValidationInterceptor requestTargetValidationInterceptor;
+
     @Autowired
     public WebConfig(
         SimpleRequestValidationInterceptor simpleRequestValidationInterceptor,
-        YoutubeChannelValidationInterceptor youtubeChannelValidationInterceptor
+        YoutubeChannelValidationInterceptor youtubeChannelValidationInterceptor,
+        RequestTargetValidationInterceptor requestTargetValidationInterceptor
     ) {
         this.simpleRequestValidationInterceptor = simpleRequestValidationInterceptor;
         this.youtubeChannelValidationInterceptor = youtubeChannelValidationInterceptor;
+        this.requestTargetValidationInterceptor = requestTargetValidationInterceptor;
     }
 
     @Override
@@ -29,6 +34,9 @@ public class WebConfig implements WebMvcConfigurer {
             .addPathPatterns("/requests");
         registry
             .addInterceptor(youtubeChannelValidationInterceptor)
+            .addPathPatterns("/requests");
+        registry
+            .addInterceptor(requestTargetValidationInterceptor)
             .addPathPatterns("/requests");
     }
 }
