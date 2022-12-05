@@ -53,6 +53,7 @@ public class YoutubeChannelInfoFetcher {
                 return info;
             }
         }
+        info.put("subscriberCount", 0L);
         return info;
     }
 }
