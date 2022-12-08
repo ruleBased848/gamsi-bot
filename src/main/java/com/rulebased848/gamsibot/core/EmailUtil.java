@@ -24,11 +24,14 @@ public class EmailUtil {
 
     private final String mailAddress;
 
+    private final ScreenshotTaker screenshotTaker;
+
     @Autowired
-    public EmailUtil(Session session, EmailView view, MailProps mailProps) {
+    public EmailUtil(Session session, EmailView view, MailProps mailProps, ScreenshotTaker screenshotTaker) {
         this.session = session;
         this.view = view;
         mailAddress = mailProps.getAddress();
+        this.screenshotTaker = screenshotTaker;
     }
 
     public void sendEmail(
@@ -46,6 +49,10 @@ public class EmailUtil {
         Object content = view.getContent(handle, subscriberCount, timestamp);
         bodyPart.setContent(content, "text/html; charset=utf-8");
         multipart.addBodyPart(bodyPart);
+        BodyPart screenshot = new MimeBodyPart();
+        screenshot.setDataHandler(screenshotTaker.getScreenshot("https://www.youtube.com/@" + handle));
+        screenshot.setFileName(view.getImageFileName());
+        multipart.addBodyPart(screenshot);
         message.setContent(multipart);
         send(message);
     }
