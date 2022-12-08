@@ -18,4 +18,8 @@ public class EmailView {
             "Subscribers: " + Long.toUnsignedString(subscriberCount) + "<br>" +
             "UTC Timestamp: " + timestamp;
     }
+
+    public String getImageFileName() {
+        return "screenshot.png";
+    }
 }
