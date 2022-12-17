@@ -29,13 +29,10 @@ public class ThreadPool {
         @Override
         public void run() {
             while (true) {
-                Runnable task = () -> {};
                 try {
-                    task = queue.take();
-                } catch (InterruptedException ie) {
-                }
-                try {
+                    Runnable task = queue.take();
                     task.run();
+                } catch (InterruptedException ie) {
                 } catch (RuntimeException re) {
                 }
             }
