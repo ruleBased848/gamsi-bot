@@ -13,11 +13,15 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EmailUtil {
+    private static final Logger logger = getLogger(EmailUtil.class);
+
     private final Session session;
 
     private final EmailView view;
@@ -53,7 +57,9 @@ public class EmailUtil {
             send(message);
             return true;
         } catch (UnsupportedEncodingException uee) {
+            logger.error("Check mail.address property.", uee);
         } catch (MessagingException me) {
+            logger.error("", me);
         }
         return false;
     }
