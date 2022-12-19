@@ -6,11 +6,15 @@ import com.rulebased848.gamsibot.web.YoutubeChannelInfoFetcher;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TaskDefinition {
+    private static final Logger logger = getLogger(TaskDefinition.class);
+
     private final RequestRepository repository;
 
     private final YoutubeChannelInfoFetcher fetcher;
@@ -36,7 +40,10 @@ public class TaskDefinition {
             List<Request> requests = repository.findByHandleAndTargetSubscriberCountLessThanEqual(handle, subscriberCount);
             repository.deleteAll(requests);
             for (Request request : requests) {
-                emailUtil.sendEmail(request.getEmailAddress(), handle, subscriberCount, timeStamp);
+                boolean success = emailUtil.sendEmail(request.getEmailAddress(), handle, subscriberCount, timeStamp);
+                if (!success) {
+                    logger.warn("Email not sent.");
+                }
             }
         };
     }
