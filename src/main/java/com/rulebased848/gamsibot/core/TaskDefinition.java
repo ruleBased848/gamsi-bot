@@ -3,11 +3,9 @@ package com.rulebased848.gamsibot.core;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestRepository;
 import com.rulebased848.gamsibot.web.YoutubeChannelInfoFetcher;
-import java.io.UnsupportedEncodingException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,11 +36,7 @@ public class TaskDefinition {
             List<Request> requests = repository.findByHandleAndTargetSubscriberCountLessThanEqual(handle, subscriberCount);
             repository.deleteAll(requests);
             for (Request request : requests) {
-                try {
-                    emailUtil.sendEmail(request.getEmailAddress(), handle, subscriberCount, timeStamp);
-                } catch (UnsupportedEncodingException uee) {
-                } catch (MessagingException me) {
-                }
+                emailUtil.sendEmail(request.getEmailAddress(), handle, subscriberCount, timeStamp);
             }
         };
     }

@@ -34,26 +34,27 @@ public class EmailUtil {
         this.screenshotTaker = screenshotTaker;
     }
 
-    public void sendEmail(
-        String emailAddress,
-        String handle,
-        long subscriberCount,
-        Instant timestamp
-    ) throws UnsupportedEncodingException, MessagingException {
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mailAddress, view.getPersonalName()));
-        message.setRecipients(TO, InternetAddress.parse(emailAddress));
-        message.setSubject(view.getSubject());
-        Multipart multipart = new MimeMultipart();
-        BodyPart bodyPart = new MimeBodyPart();
-        Object content = view.getContent(handle, subscriberCount, timestamp);
-        bodyPart.setContent(content, "text/html; charset=utf-8");
-        multipart.addBodyPart(bodyPart);
-        BodyPart screenshot = new MimeBodyPart();
-        screenshot.setDataHandler(screenshotTaker.getScreenshot("https://www.youtube.com/@" + handle));
-        screenshot.setFileName(view.getImageFileName());
-        multipart.addBodyPart(screenshot);
-        message.setContent(multipart);
-        send(message);
+    public boolean sendEmail(String emailAddress, String handle, long subscriberCount, Instant timestamp) {
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(mailAddress, view.getPersonalName()));
+            message.setRecipients(TO, InternetAddress.parse(emailAddress));
+            message.setSubject(view.getSubject());
+            Multipart multipart = new MimeMultipart();
+            BodyPart bodyPart = new MimeBodyPart();
+            Object content = view.getContent(handle, subscriberCount, timestamp);
+            bodyPart.setContent(content, "text/html; charset=utf-8");
+            multipart.addBodyPart(bodyPart);
+            BodyPart screenshot = new MimeBodyPart();
+            screenshot.setDataHandler(screenshotTaker.getScreenshot("https://www.youtube.com/@" + handle));
+            screenshot.setFileName(view.getImageFileName());
+            multipart.addBodyPart(screenshot);
+            message.setContent(multipart);
+            send(message);
+            return true;
+        } catch (UnsupportedEncodingException uee) {
+        } catch (MessagingException me) {
+        }
+        return false;
     }
 }
