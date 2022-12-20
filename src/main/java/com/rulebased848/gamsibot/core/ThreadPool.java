@@ -1,6 +1,7 @@
 package com.rulebased848.gamsibot.core;
 
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +13,9 @@ public class ThreadPool {
 
     private final Worker[] threads;
 
-    private final SynchronousQueue<Runnable> queue = new SynchronousQueue<>();
+    private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+
+    private final BlockingQueue<Object> responseQueue = new LinkedBlockingQueue<>();
 
     public ThreadPool(@Value("${pool.thread-count}") int threadCount) {
         threads = new Worker[threadCount];
@@ -30,6 +33,16 @@ public class ThreadPool {
         }
     }
 
+    public Object receive() {
+        while (true) {
+            try {
+                return responseQueue.take();
+            } catch (InterruptedException ie) {
+                logger.error("Interrupted while taking a response from the queue.", ie);
+            }
+        }
+    }
+
     private class Worker extends Thread {
         @Override
         public void run() {
@@ -37,8 +50,9 @@ public class ThreadPool {
                 try {
                     Runnable task = queue.take();
                     task.run();
+                    responseQueue.put(new Object());
                 } catch (InterruptedException ie) {
-                    logger.error("Interrupted while taking a task from the queue.", ie);
+                    logger.error("Interrupted while taking a task from the queue or putting a response into the queue.", ie);
                 } catch (RuntimeException re) {
                     logger.error("Unexpected runtime exception while running a task.", re);
                 }
