@@ -4,6 +4,7 @@ import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestRepository;
 import com.rulebased848.gamsibot.domain.User;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,9 +58,13 @@ public class RequestManager implements CommandLineRunner {
         @Override
         public void run() {
             while (true) {
-                for (String handle : repository.findAllDistinctHandle()) {
+                List<String> handles = repository.findAllDistinctHandle();
+                for (String handle : handles) {
                     Runnable task = taskDef.getTask(handle);
                     pool.execute(task);
+                }
+                for (int i = 0; i < handles.size(); ++i) {
+                    pool.receive();
                 }
             }
         }
