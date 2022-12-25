@@ -1,1 +1,1 @@
-# gamsi-bot
+# Gamsi Bot
