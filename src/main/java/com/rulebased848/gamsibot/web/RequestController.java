@@ -3,6 +3,7 @@ package com.rulebased848.gamsibot.web;
 import com.rulebased848.gamsibot.core.RequestManager;
 import com.rulebased848.gamsibot.domain.Request;
 import com.rulebased848.gamsibot.domain.RequestPayload;
+import com.rulebased848.gamsibot.domain.RequestView;
 import com.rulebased848.gamsibot.domain.User;
 import com.rulebased848.gamsibot.domain.UserRepository;
 import com.rulebased848.gamsibot.service.JwtService;
@@ -72,9 +73,16 @@ public class RequestController {
         if (maybeUser.isPresent()) {
             request.setRequester(maybeUser.get());
         }
+        Request result = requestManager.createRequest(request);
+        var requestView = new RequestView();
+        requestView.setId(result.getId());
+        requestView.setHandle(result.getHandle());
+        requestView.setTargetSubscriberCount(result.getTargetSubscriberCount());
+        requestView.setEmailAddress(result.getEmailAddress());
+        requestView.setCreatedAt(result.getCreatedAt());
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
-            .body(requestManager.createRequest(request));
+            .body(requestView);
     }
 
     @DeleteMapping("/requests/{id}")
