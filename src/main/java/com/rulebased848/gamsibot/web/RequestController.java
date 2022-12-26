@@ -10,8 +10,10 @@ import com.rulebased848.gamsibot.service.JwtService;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import static java.util.stream.Collectors.toList;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.http.ResponseEntity;
@@ -55,9 +57,18 @@ public class RequestController {
                 .body(body);
         }
         User user = maybeUser.get();
+        List<RequestView> requestViews = user.getRequests().stream().map(r -> {
+            var requestView = new RequestView();
+            requestView.setId(r.getId());
+            requestView.setHandle(r.getHandle());
+            requestView.setTargetSubscriberCount(r.getTargetSubscriberCount());
+            requestView.setEmailAddress(r.getEmailAddress());
+            requestView.setCreatedAt(r.getCreatedAt());
+            return requestView;
+        }).collect(toList());
         return ResponseEntity.ok()
             .contentType(APPLICATION_JSON)
-            .body(user.getRequests());
+            .body(requestViews);
     }
 
     @PostMapping("/requests")
