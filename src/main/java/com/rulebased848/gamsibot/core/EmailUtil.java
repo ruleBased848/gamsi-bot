@@ -2,72 +2,65 @@ package com.rulebased848.gamsibot.core;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
-import java.util.Properties;
-import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Message;
 import static javax.mail.Message.RecipientType.TO;
 import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import static javax.mail.Transport.send;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EmailUtil {
+    private static final Logger logger = getLogger(EmailUtil.class);
+
     private final Session session;
+
+    private final EmailView view;
 
     private final String mailAddress;
 
+    private final ScreenshotTaker screenshotTaker;
+
     @Autowired
-    public EmailUtil(
-        @Value("${mail.smtp.host}") String mailHost,
-        @Value("${mail.smtp.port}") String mailPort,
-        @Value("${mail.smtp.ssl.trust}") String mailSslTrust,
-        @Value("${mail.smtp.ssl.protocols}") String mailSslProtocols,
-        @Value("${mail.username}") String mailUsername,
-        @Value("${mail.password}") String mailPassword,
-        @Value("${mail.address}") String mailAddress
-    ) {
-        var props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", mailHost);
-        props.put("mail.smtp.port", mailPort);
-        props.put("mail.smtp.ssl.trust", mailSslTrust);
-        props.put("mail.smtp.ssl.protocols", mailSslProtocols);
-        var auth = new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailUsername, mailPassword);
-            }
-        };
-        session = Session.getInstance(props, auth);
-        this.mailAddress = mailAddress;
+    public EmailUtil(Session session, EmailView view, MailProps mailProps, ScreenshotTaker screenshotTaker) {
+        this.session = session;
+        this.view = view;
+        mailAddress = mailProps.getAddress();
+        this.screenshotTaker = screenshotTaker;
     }
 
-    public void sendEmail(
-        String emailAddress,
-        String channelId,
-        long subscriberCount,
-        Instant timestamp
-    ) throws UnsupportedEncodingException, MessagingException {
-        var message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mailAddress, "Gamsi Bot"));
-        message.setRecipients(TO, InternetAddress.parse(emailAddress));
-        message.setSubject("Gamsi Bot Notification");
-        var bodyPart = new MimeBodyPart();
-        var content = "Channel ID: <a href=\"https://www.youtube.com/channel/" + channelId + "\">" + channelId + "</a><br>" +
-            "Subscribers: " + subscriberCount + "<br>" +
-            "UTC Timestamp: " + timestamp;
-        bodyPart.setContent(content, "text/html; charset=utf-8");
-        var multiPart = new MimeMultipart();
-        multiPart.addBodyPart(bodyPart);
-        message.setContent(multiPart);
-        send(message);
+    public boolean sendEmail(String emailAddress, String handle, long subscriberCount, Instant timestamp) {
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(mailAddress, view.getPersonalName()));
+            message.setRecipients(TO, InternetAddress.parse(emailAddress));
+            message.setSubject(view.getSubject());
+            Multipart multipart = new MimeMultipart();
+            BodyPart bodyPart = new MimeBodyPart();
+            Object content = view.getContent(handle, subscriberCount, timestamp);
+            bodyPart.setContent(content, "text/html; charset=utf-8");
+            multipart.addBodyPart(bodyPart);
+            BodyPart screenshot = new MimeBodyPart();
+            screenshot.setDataHandler(screenshotTaker.getScreenshot("https://www.youtube.com/@" + handle));
+            screenshot.setFileName(view.getImageFileName());
+            multipart.addBodyPart(screenshot);
+            message.setContent(multipart);
+            send(message);
+            return true;
+        } catch (UnsupportedEncodingException uee) {
+            logger.error("Check mail.address property.", uee);
+        } catch (MessagingException me) {
+            logger.error("", me);
+        }
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package com.rulebased848.gamsibot.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import static javax.persistence.CascadeType.ALL;
 import javax.persistence.Column;
@@ -32,6 +33,7 @@ public class User {
     @NotNull
     private String role;
 
+    @JsonIgnore
     @OneToMany(cascade = ALL, mappedBy = "requester")
     private List<Request> requests;
 

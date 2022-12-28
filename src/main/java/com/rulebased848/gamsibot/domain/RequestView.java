@@ -1,18 +1,25 @@
 package com.rulebased848.gamsibot.domain;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import java.time.Instant;
 
-public class RequestPayload {
-    @NotBlank
+public class RequestView {
+    private long id;
+
     private String handle;
 
     private long targetSubscriberCount;
 
-    @Email
-    @NotEmpty
     private String emailAddress;
+
+    private Instant createdAt;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getHandle() {
         return handle;
@@ -36,5 +43,13 @@ public class RequestPayload {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
 }
