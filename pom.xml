@@ -13,7 +13,7 @@
   </parent>
   <groupId>com.rulebased848</groupId>
   <artifactId>gamsi-bot</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>Gamsi Bot</name>
   <description></description>
   <properties>
